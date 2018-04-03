@@ -6,24 +6,8 @@
 -- Require
 local Class = require "class.manager"
 local Krist = require "core.krist"
-local Jua   = require "lib.jua"
-local Wsk   = {
-  k = require "lib.wsk.k",
-  w = require "lib.wsk.w",
-  r = require "lib.wsk.r",
-}
+local Jua   = Krist.Jua
 
--- Namespace
-local TransactionAgent = Class "TransactionAgent" (
-  function (argl)
-    -- Typechecking
-    if not argl.socket then return "kristal/TransactionAgent:new  Did not receive socket!" end
-    -- Object
-    return {
-      socket = argl.socket
-    }
-  end
-)
 -- Parse metadata
 function parseMetadata (str)
   if str:len() > 255 then error "kristal/TransactionAgent:parseMetadata  Metadata string is not valid: too long!" end
@@ -100,7 +84,22 @@ function TransactionAgent:wrap (data, handler)
   return function () handler (Transaction, Metadata) end
 end
 
--- Make a transaction
+-- Serialize a metadata string
+function TransactionAgent:serializeMetadata (metadata)
+  local final = ""
+  for k,v in pairs (metadata) do
+    if k == "$" then
+      final = v .. final
+    else
+      final = final .. tostring (k) .. "=" .. tostring (v) .. ";"
+    end
+  end
+  if final:match ";$" then final:gsub (";$", "") end
+  return final
+end
+
+-- Make a transaction (HTTP-POST)
 function TransactionAgent:make (From, To, amount, meta)
-  
+  local kristAgent = Krist:new ("krist.ceriat.net", "http://", "ws://")
+
 end
