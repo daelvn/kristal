@@ -3,25 +3,29 @@
 -- Connection to the Krist API
 
 -- Require
-package.path  = "../?.lua"
 local Class   = require "class.manager"
 local libjson = require "lib.json"
 local Jua     = require "lib.jua"
+local Wsk     = {
+  k = require "lib.wsk.k",
+  w = require "lib.wsk.w",
+  r = require "lib.wsk.r"
+}
 
 -- Create Krist class
 local Krist = Class "Krist" (
   function (argl) -- endpoint, http_protocol*, ws_protocol*
     -- Typechecks
-    if     not argl.endpoint                     then return "kristal/Krist  argl.endpoint expected!"
-    elseif type (argl.endpoint) ~= "string"      then return "kristal/Krist  argl.endpoint must be a string!"
-    elseif not argl.http_protocol                then argl.http_protocol = "http://"
-    elseif not argl.ws_protocol                  then argl.ws_protocol   = "ws://"
+    if     not   argl.endpoint                   then return "kristal/Krist  argl.endpoint expected!"
+    elseif type (argl.endpoint)      ~= "string" then return "kristal/Krist  argl.endpoint must be a string!"
+    elseif not   argl.http_protocol              then argl.http_protocol = "http://"
+    elseif not   argl.ws_protocol                then argl.ws_protocol   = "ws://"
     elseif type (argl.http_protocol) ~= "string" then return "kristal/Krist  argl.http_protocol must be a string!"
-    elseif type (argl.ws_protocol) ~= "string"   then return "kristal/Krist  argl.ws_protocol must be a string!"
+    elseif type (argl.ws_protocol)   ~= "string" then return "kristal/Krist  argl.ws_protocol must be a string!"
     end
     -- Object
     return {
-      endpoint = argl.endpoint,
+      endpoint     = argl.endpoint,
       httpProtocol = argl.http_protocol,
       wsProtocol   = argl.ws_protocol,
     }
@@ -103,17 +107,12 @@ function Krist:DELETE (t)
 end
 
 -- Websockets --
-function Krist:asyncSocketConnect ()
-  if not http.websocketAsync then
-    error "kristal/Krist:wsConnect  Could not find http.websocketAsync! Do you have CC:Tweaked installed?"
-  end
-  http.websocketAsync (self.wsProtocol..self.endpoint)
+-- Krist:socketConnect (Address, TransactionAgent:handle, handle)
+function Krist:socketConnect (Address, _transactionWrapper, _transactionHandler) -- _transactionHandler (data)
+  local ok, socket = Jua.await (Wsk.k.connect, Address.key)
+  if not ok then error "kristal/Krist:socketConnect  Could not connect to Krist Websocket!" end
+  local success = Jua.await (socket.subscribe, "transactions", _transactionWrapper (_transactionHandler))
+  return socket
 end
 
-Jua.on ("websocket_failure", function ()                   error "kristal/Krist:asyncSocketConnect  Could not connect to websocket!" end)
-Jua.on ("websocket_success", function (event, url, handle) os.queueEvent ("kristal:init",    url, handle) end)
-Jua.on ("websocket_message", function (event, url, data)   os.queueEvent ("kristal:message", url, data)   end)
-Jua.on ("websocket_closed" , function (event, url)         os.queueEvent ("kristal:end",     url)         end)
-
--- Return
 return Krist
