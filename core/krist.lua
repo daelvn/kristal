@@ -47,7 +47,7 @@ end
 -- Makes a GET request
 function Krist:GET (t)
   local at, ft = t.at, t.ft or {}
-  local handle = http.get (self.httpProtocol .. self.endpoint .. self:format (at,ft))
+  local handle = http.get (self.httpProtocol .. self.endpoint .. self.format (at,ft))
   if handle.getResponseCode () ~= 200 then
     error ("kristal/Krist:GET  HTTP Response code is "..tostring (handle.getResponseCode()))
   else
@@ -65,7 +65,7 @@ function Krist:POST (t)
     paramstr = paramstr..i.."="..textutils.urlEncode (v).."&"
   end
 
-  local handle = http.post (self.httpProtocol .. self.endpoint .. self:format (at,ft), paramstr)
+  local handle = http.post (self.httpProtocol .. self.endpoint .. self.format (at,ft), paramstr)
   if handle.getResponseCode () ~= 200 then
     error ("kristal/Krist:POST  HTTP Response code is "..tostring (handle.getResponseCode()))
   else
@@ -85,7 +85,7 @@ function Krist:PUT (t)
 
   local handle = http.post (self.httpProtocol
                          .. self.endpoint
-                         .. self:format (at,ft), paramstr, {["X-HTTP-Method-Override"] = "PUT"})
+                         .. self.format (at,ft), paramstr, {["X-HTTP-Method-Override"] = "PUT"})
   if handle.getResponseCode () ~= 200 then
     error ("kristal/Krist:PUT  HTTP Response code is "..tostring (handle.getResponseCode()))
   else
@@ -105,7 +105,7 @@ function Krist:DELETE (t)
 
   local handle = http.post (self.httpProtocol
                          .. self.endpoint
-                         .. self:format (at,ft), paramstr, {["X-HTTP-Method-Override"] = "DELETE"})
+                         .. self.format (at,ft), paramstr, {["X-HTTP-Method-Override"] = "DELETE"})
   if handle.getResponseCode () ~= 200 then
     error ("kristal/Krist:PUT  HTTP Response code is "..tostring (handle.getResponseCode()))
   else
