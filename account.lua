@@ -27,6 +27,8 @@ local Account = Class "Account" (
       if     not argl.key then              return "kristal/Account:new  Key was not provided!"
       elseif type (argl.key) ~= string then return "kristal/Account:new  Key must be a string!"
       end
+      if     argl.format then object.key  = Wallet (argl.format) (argl.key, sha256) end
+      if     argl.hrnd   then object.hrnd = argl.hrnd                               end
     end
 
     if     argl.new     then

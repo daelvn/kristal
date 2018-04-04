@@ -37,12 +37,6 @@ function TransactionAgent.parseMetadata (str)
       else
         error "kristal/TransactionAgent:parseMetadata  Malformed field in metadata!"
       end
-    -- Match an address --
-    elseif field:match "^k([a-z0-9])$" then
-      local address = field:match "^k([a-z0-9])$"
-      if address:len() ~= 9 then error "kristal/TransactionAgent:parseMetadata  Address is not valid!" end
-      metadata.address = address
-    -- Match a name --
     elseif field:match "^([a-z0-9-_]*)@*([a-z0-9-_]-)%.kst$" then
       local meta, name = str:match "^([a-z0-9-_]*)@*([a-z0-9-_]-)%.kst"
       if meta or name then
@@ -52,12 +46,12 @@ function TransactionAgent.parseMetadata (str)
         end
         -- Save data
         if name == "" then
-          metadata.name = meta
-          metadata.full = metadata.name .. ".kst"
+          metadata._name = meta
+          metadata["$"]  = metadata._name .. ".kst"
         else
-          metadata.name = name
-          metadata.meta = meta
-          metadata.full = metadata.meta .. "@" .. metadata.name .. ".kst"
+          metadata._name = name
+          metadata._meta = meta
+          metadata["$"]  = metadata._meta .. "@" .. metadata._name .. ".kst"
         end
       end
     end
@@ -78,16 +72,16 @@ local TransactionHandler = Class "TransactionHandler" (
 -- Run all the triggers
 getmetatable (TransactionHandler).__call = function (t, Transaction, Metadata)
   for k,v in pairs(t.triggers) do
-    if k == Metadata.full then
+    if k == Metadata["$"] then
       -- Trigger has matched, execute it
-      v (Transaction, Metadata)
+      v.trigger (Transaction, Metadata)
     end
   end
 end
 
 -- Create a new trigger
-function TransactionHandler:on (Address, handler)
-  self.triggers[Address.point] = {address=Address,handler=handler}
+function TransactionHandler:on (address, handler)
+  self.triggers[address] = {address=address,trigger=handler}
 end
 
 -- Handle all transactions
@@ -117,7 +111,7 @@ end
 
 -- Make a transaction (HTTP-POST)
 function TransactionAgent:make (From, To, amount, meta)
-  local kristAgent = Krist:new ("krist.ceriat.net", "http://", "ws://")
+  local kristAgent = Krist:new ("krist.ceriat.net")
   local response   = kristAgent:POST {at=routes.transactions.make, params={
     privatekey = From.key or error "krist/TransactionAgent:make  You must provide a source account with a key!",
     to         = To.recipient,
@@ -128,6 +122,17 @@ function TransactionAgent:make (From, To, amount, meta)
   -- Return the transaction id and save it on a registry
   self.involved.outgoing[#self.involved.outgoing+1] = response.transaction
   return response.transaction.id
+end
+
+-- Connect to the socket
+function TransactionAgent:socketConnect (Address, wrapper, handler)
+  local kristAgent = Krist:new ("krist.ceriat.net")
+  kristAgent:socketConnect (kristAgent.endpoint,
+                            kristAgent.wsEndpoint,
+                            kristAgent.httpEndpoint,
+                            Address,
+                            wrapper,
+                            handler)
 end
 
 -- Transaction sorters
