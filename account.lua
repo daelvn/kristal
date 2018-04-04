@@ -122,6 +122,8 @@ local Account = Class "Account" (
       local response = kristAuthenticator:POST {at=routes.misc.login, ft={v=2}, params={privatekey=argl.pkey}}
       if not response.authed then return "kristal/Account:new{auth=true}  Could not authorize pkey!" end
     end
+
+    return object
   end
 )
 

@@ -5,11 +5,12 @@
 -- Namespace
 local Kristal = {
   Account     = require "account",
-  Transaction = require "transaction"
+  Transaction = require "transaction",
+  Wallet      = require "core.wallets"
 }
 
 -- Jua.go
-Kristal.go = Krist.Transaction._go
+Kristal.go = Kristal.Transaction._go
 
 -- Return
 return Kristal
