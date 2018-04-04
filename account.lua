@@ -87,6 +87,7 @@ local Account = Class "Account" (
     else
       return "kristal/Account:new{name="..tostring(argl.name).."}  Could not validate name!"
     end
+    object.recipient = object.name or object.address 
     -- Get address info
     object.update = function (self)
       object.info = {}

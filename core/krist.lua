@@ -2,6 +2,10 @@
 -- By daelvn
 -- Connection to the Krist API
 
+-- Linter
+local http      = http
+local textutils = textutils
+
 -- Require
 local Class   = require "class.manager"
 local libjson = require "lib.json"
@@ -48,7 +52,7 @@ function Krist:GET (t)
   else
     local response = libjson.decode (handle.readAll ())
     handle.close ()
-    return response.ok and response or error "kristal/Krist:GET  Failed request!"
+    return response.ok and response or error "kristal/Krist:GET  Failed request! ".. response["error"]
   end
 end
 
@@ -66,7 +70,7 @@ function Krist:POST (t)
   else
     local response = libjson.decode (handle.readAll ())
     handle.close ()
-    return response.ok and response or error "kristal/Krist:POST  Failed request!"
+    return response.ok and response or error "kristal/Krist:POST  Failed request!" .. response["error"]
   end
 end
 
@@ -78,13 +82,15 @@ function Krist:PUT (t)
     paramstr = paramstr..i.."="..textutils.urlEncode (v).."&"
   end
 
-  local handle = http.post (self.httpProtocol .. self.endpoint .. self:format (at,ft), paramstr, {["X-HTTP-Method-Override"] = "PUT"})
+  local handle = http.post (self.httpProtocol
+                         .. self.endpoint
+                         .. self:format (at,ft), paramstr, {["X-HTTP-Method-Override"] = "PUT"})
   if handle.getResponseCode () ~= 200 then
     error ("kristal/Krist:PUT  HTTP Response code is "..tostring (handle.getResponseCode()))
   else
     local response = libjson.decode (handle.readAll())
     handle.close ()
-    return response.ok and response or error "kristal/Krist:PUT  Failed request!"
+    return response.ok and response or error "kristal/Krist:PUT  Failed request! ".. response["error"]
   end
 end
 
@@ -96,13 +102,15 @@ function Krist:DELETE (t)
     paramstr = paramstr..i.."="..textutils.urlEncode (v).."&"
   end
 
-  local handle = http.post (self.httpProtocol .. self.endpoint .. self:format (at,ft), paramstr, {["X-HTTP-Method-Override"] = "DELETE"})
+  local handle = http.post (self.httpProtocol
+                         .. self.endpoint
+                         .. self:format (at,ft), paramstr, {["X-HTTP-Method-Override"] = "DELETE"})
   if handle.getResponseCode () ~= 200 then
     error ("kristal/Krist:PUT  HTTP Response code is "..tostring (handle.getResponseCode()))
   else
     local response = libjson.decode (handle.readAll())
     handle.close ()
-    return response.ok and response or error "kristal/Krist:DELETE  Failed request!"
+    return response.ok and response or error "kristal/Krist:DELETE  Failed request! ".. response["error"]
   end
 end
 
@@ -112,7 +120,9 @@ function Krist:socketConnect (Address, _transactionWrapper, _transactionHandler)
   local ok, socket = Jua.await (Wsk.k.connect, Address.key)
   if not ok then error "kristal/Krist:socketConnect  Could not connect to Krist Websocket!" end
   local success = Jua.await (socket.subscribe, "transactions", _transactionWrapper (_transactionHandler))
-  return socket
+  if not success then error "kristal/Krist:socketConnect  Could not handle transaction!" end
 end
+
+function Krist._go (f) Jua.go (f) end
 
 return Krist
