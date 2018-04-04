@@ -116,11 +116,12 @@ end
 
 -- Websockets --
 -- Krist:socketConnect (Address, TransactionAgent:handle, handle)
-function Krist:socketConnect (Address, _transactionWrapper, _transactionHandler) -- _transactionHandler (data)
-  local ok, socket = Jua.await (Wsk.k.connect, Address.key)
+function Krist:socketConnect (endpoint, wsEndpoint, httpEndpoint, Address, _transactionWrapper, _transactionHandler) -- _transactionHandler (data)
+  local ok, socket = Jua.await (Wsk.k.connect, endpoint, wsEndpoint, httpEndpoint, Address.key)
   if not ok then error "kristal/Krist:socketConnect  Could not connect to Krist Websocket!" end
   local success = Jua.await (socket.subscribe, "transactions", _transactionWrapper (_transactionHandler))
   if not success then error "kristal/Krist:socketConnect  Could not handle transaction!" end
+  Jua.on ("terminate", function () socket.close (); Jua.stop () end)
 end
 
 function Krist._go (f) Jua.go (f) end

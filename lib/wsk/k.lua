@@ -2,15 +2,13 @@
 -- Websocket-only version
 -- By justync7
 
+local textutils = textutils
+
 local w     = require "lib.wsk.w"
 local r     = require "lib.wsk.r"
 local jua   = require "lib.jua"
 local json  = require "lib.json"
 local await = jua.await
-
-local endpoint = "krist.ceriat.net"
-local wsEndpoint = "ws://"..endpoint
-local httpEndpoint = "http://"..endpoint
 
 local function asserttype(var, name, vartype, optional)
   if not (type(var) == vartype or optional and type(var) == "nil") then
@@ -18,14 +16,7 @@ local function asserttype(var, name, vartype, optional)
   end
 end
 
-local function prints(...)
-  local objs = {...}
-  for i, obj in ipairs(objs) do
-    print(textutils.serialize(obj))
-  end
-end
-
-local function url(call)
+local function url(httpEndpoint, call)
   return httpEndpoint..call
 end
 
@@ -47,23 +38,6 @@ local function authorize_websocket(cb, privatekey)
     cb(success, data and data.url:gsub("wss:", "ws:"))
   end, "/ws/start", {
     privatekey = privatekey
-  })
-end
-
-function makeTransaction(cb, privatekey, to, amount, metadata)
-  asserttype(cb, "callback", "function")
-  asserttype(privatekey, "privatekey", "string")
-  asserttype(to, "to", "string")
-  asserttype(amount, "amount", "number")
-  asserttype(metadata, "metadata", "string", true)
-
-  api_request(function(success, data)
-    cb(success, data.transaction)
-  end, "/transactions", {
-    privatekey = privatekey,
-    to = to,
-    amount = amount,
-    metadata = metadata
   })
 end
 
@@ -145,8 +119,8 @@ wsEvents.failure = function(id)
   end
 end
 
-wsEvents.message = function(id, data)
-  local data = json.decode(data)
+wsEvents.message = function(id, edata)
+  local data = json.decode(edata)
   --print("msg:"..tostring(data.ok)..":"..tostring(data.type)..":"..tostring(data.id))
   --prints(data)
   -- handle events and responses
@@ -212,7 +186,7 @@ local function mixinHandle(id, handle)
   return barebonesMixinHandle(id, handle)
 end
 
-function connect(cb, privatekey, preconnect)
+local function connect(endpoint, wsEndpoint, httpEndpoint, cb, privatekey, preconnect)
   asserttype(cb, "callback", "function")
   asserttype(privatekey, "privatekey", "string", true)
   asserttype(preconnect, "preconnect", "function", true)
@@ -233,12 +207,4 @@ function connect(cb, privatekey, preconnect)
   end)
 end
 
-local domainMatch = "^([%l%d-_]*)@?([%l%d-]+).kst$"
-local commonMetaMatch = "^(.+)=(.+)$"
-
-return {
-  init = init,
-  connect = connect,
-  parseMeta = parseMeta,
-  sha256 = sha256,
-}
+return {connect=connect}

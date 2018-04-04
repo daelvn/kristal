@@ -9,14 +9,14 @@ local function repeatf (f, a, n)
 end
 
 return function (wtype)
-  return function (pkey, hash, username)
+  return function (pkey, hash, username, ahrnd)
     local kwu_error = "kristal/core/wallets  Username was not provided for the kristwallet_username format!"
     if     wtype == "kristwallet"          then return hash ("KRISTWALLET" .. pkey) .. "-000"
     elseif wtype == "kristwallet_username" then local huser = hash(hash(username and username or error(kwu_error)))
                                                 return hash ("KRISTWALLETEXTENSION" .. huser .. "^" .. hash (pkey)) .. "-000"
     elseif wtype == "jwalelset"            then return repeatf (hash, pkey, 18)
     elseif wtype == "plain"                then return pkey
-    elseif wtype == "dvseal"               then -- Only to be used with Kristecon 
+    elseif wtype == "dvseal-new"               then -- Only to be used with Kristecon
       -- Generate securer/hrnd
       local rnd16 = ""
       for i=1,16 do
@@ -29,6 +29,9 @@ return function (wtype)
       local wpkey = hash ("DVSEAL:" .. hash(pkey) .. ";" .. hrnd) .. "-000"
       -- Return
       return wpkey, hrnd
+    elseif wtype == "dvseal" then
+      if not ahrnd then error "kristal/core/wallets  Hrnd was not provided with dvseal format!" end
+      return hash ("DVSEAL:" .. hash(pkey) .. ";" .. ahrnd) .. "-000"
     else   error "kristal/core/wallets  Wallet type was not specified!"
     end
   end
