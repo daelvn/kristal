@@ -40,7 +40,7 @@ local Account = Class "Account" (
       if argl.format and (not hrnd) then return "kristal/Account:new{new=true}  Error creating dvseal wallet!" end
       -- Use krist.ceriat.net/v2 or not?
       if argl.online then
-        local kristV2AddressGen = Krist:new ("krist.ceriat.net", "http://", "ws://")
+        local kristV2AddressGen = Krist:new {endpoint="krist.ceriat.net"}
         local response = kristV2AddressGen:POST {at="/v2", params={privatekey=key}}
         object.address = response.address
       else
@@ -81,7 +81,7 @@ local Account = Class "Account" (
       else return "kristal/Account:new{address="..tostring(argl.address).."}  Could not validate address!" end
     -- If a name is provided, validate it and set
     elseif argl.name    then
-      local kristNameValidator   = Krist:new ("krist.ceriat.net", "http://", "ws://")
+      local kristNameValidator   = Krist:new {endpoint="krist.ceriat.net"}
       local response             = kristNameValidator:GET {at=routes.name.get, ft={name=argl.name}}
       object.name                = response.name
       object.name.pretty         = argl.name
@@ -93,7 +93,7 @@ local Account = Class "Account" (
     -- Get address info
     object.update = function (self)
       object.info = {}
-      local kristAddressInfo = Krist:new ("krist.ceriat.net", "http://", "ws://")
+      local kristAddressInfo = Krist:new {endpoint="krist.ceriat.net"}
       -- Basic info
       local basic = kristAddressInfo:GET {at=routes.addresses.get, ft={address=self.address}}
       self.info.balance   = basic.address.balance
@@ -120,7 +120,7 @@ local Account = Class "Account" (
     object:update ()
     -- Authenticate
     if argl.auth then
-      local kristAuthenticator = Krist:new ("krist.ceriat.net", "http://", "ws://")
+      local kristAuthenticator = Krist:new {endpoint="krist.ceriat.net"}
       local response = kristAuthenticator:POST {at=routes.misc.login, ft={v=2}, params={privatekey=argl.pkey}}
       if not response.authed then return "kristal/Account:new{auth=true}  Could not authorize pkey!" end
     end
