@@ -14,7 +14,7 @@ handler:on ("donate-to-lem@dv.kst", function(Transaction,Metadata)
 end)
 
 -- Start listening to the Websocket
-agent:socketConnect (dv_kst, agent:wrap, handler)
+agent:socketConnect (dv_kst, agent.wrap, handler)
 
 -- Tell Kristal to start executing
 Kristal.go ()
