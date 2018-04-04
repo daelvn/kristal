@@ -20,7 +20,7 @@ local Account = Class "Account" (
       address = "",
       hrnd    = "",
       name    = false,
-      key     = "", 
+      key     = "",
     }
     -- Typechecking and functionality
     if argl.own then
@@ -33,7 +33,7 @@ local Account = Class "Account" (
       -- If new=true, then create a new address
       if not argl.format then return "kristal/Account:new{new=true}  Wallet format was not provided!" end
       -- Format pkey
-      local key, hrnd = Wallet (argl.format) (argl.key, hash)
+      local key, hrnd = Wallet (argl.format) (argl.key, sha256)
       object.hrnd = hrnd
       if argl.format and (not hrnd) then return "kristal/Account:new{new=true}  Error creating dvseal wallet!" end
       -- Use krist.ceriat.net/v2 or not?
@@ -49,7 +49,7 @@ local Account = Class "Account" (
         local v2     = "k"
         local hash   = sha256 (sha256( key ))
 
-        for i = 0, i <= 8 do
+        for i = 0, 8 do
           chars[i] = hash:sub (1,3)
           hash     = sha256 (sha256( hash ))
         end
@@ -57,7 +57,7 @@ local Account = Class "Account" (
         local i = 0
         repeat
           local index = tonumber ( hash:sub (2*i,2+2*i), 16) % 9
-          
+          --
           if chars[index] == nil then
             hash = sha256 (hash)
           else
@@ -87,7 +87,7 @@ local Account = Class "Account" (
     else
       return "kristal/Account:new{name="..tostring(argl.name).."}  Could not validate name!"
     end
-    object.recipient = object.name or object.address 
+    object.recipient = object.name or object.address
     -- Get address info
     object.update = function (self)
       object.info = {}
@@ -99,7 +99,10 @@ local Account = Class "Account" (
       self.info.totalOut  = basic.address.totalout
       self.info.firstSeen = basic.address.firstseen
       -- Latest transactions
-      local transactions = kristAddressInfo:GET {at=routes.addresses.transactions, ft={address=self.address,limit=10,offset=0}}
+      local transactions = kristAddressInfo:GET {
+        at=routes.addresses.transactions,
+        ft={address=self.address,limit=10,offset=0}
+      }
       self.info.transactions = {
         total = transactions.total,
         list  = transactions.transactions

@@ -108,7 +108,7 @@ function TransactionAgent:serializeMetadata (metadata)
     if k == "$" then
       final = v .. final
     else
-      final = final .. tostring (k) .. "=" .. tostring (v) .. ";"
+       final = final .. tostring (k) .. "=" .. tostring (v) .. ";"
     end
   end
   if final:match ";$" then final:gsub (";$", "") end
