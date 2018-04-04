@@ -1,4 +1,4 @@
-local Kristal = require "kristal"
+local Kristal = require "main"
 
 -- Accounts
 local khugepoopy = Kristal.Account:new {address="khugepoopy"}

@@ -37,7 +37,7 @@ local Krist = Class "Krist" (
 )
 
 -- Turns :a into solved addresses
-function Krist:format (at, ft)
+function Krist.format (at, ft)
   for param in at:gmatch ":[a-z]+" do
     if ft[param:sub (2)] then at:gsub (param, ft[param:sub (2)]) end
   end
