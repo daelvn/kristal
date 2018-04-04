@@ -9,6 +9,8 @@ local Class  = require "class.manager"
 local Krist  = require "core.krist"
 local _go    = Krist._go
 
+local function bind (target, f) return function (...) f (target, ...) end end
+
 local TransactionAgent = Class "TransactionAgent" (
   function (argl)
     -- Object
@@ -70,8 +72,8 @@ local TransactionHandler = Class "TransactionHandler" (
 )
 
 -- Run all the triggers
-getmetatable (TransactionHandler:new ()).__call = function (t, Transaction, Metadata)
-  for k,v in pairs(t.triggers) do
+function TransactionHandler.run (self, Transaction, Metadata)
+  for k,v in pairs(self.triggers) do
     if k == Metadata["$"] then
       -- Trigger has matched, execute it
       v.trigger (Transaction, Metadata)
@@ -132,7 +134,7 @@ function TransactionAgent:socketConnect (Address, wrapper, handler)
                             kristAgent.httpEndpoint,
                             Address,
                             wrapper,
-                            handler)
+                            bind(self, handler))
 end
 
 -- Transaction sorters
