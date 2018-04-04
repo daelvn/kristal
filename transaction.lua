@@ -70,7 +70,7 @@ local TransactionHandler = Class "TransactionHandler" (
 )
 
 -- Run all the triggers
-getmetatable (TransactionHandler).__call = function (t, Transaction, Metadata)
+getmetatable (TransactionHandler:new ()).__call = function (t, Transaction, Metadata)
   for k,v in pairs(t.triggers) do
     if k == Metadata["$"] then
       -- Trigger has matched, execute it
