@@ -37,7 +37,7 @@ local Account = Class "Account" (
       -- Format pkey
       local key, hrnd = Wallet (argl.format) (argl.key, sha256)
       object.hrnd = hrnd
-      if argl.format and (not hrnd) then return "kristal/Account:new{new=true}  Could not generate hrnd for dvseal wallet." end
+      if argl.format == "dvseal-new" and (not hrnd) then return "kristal/Account:new{new=true}  Could not generate hrnd for dvseal wallet." end
       -- Use krist.ceriat.net/v2 or not?
       if argl.online then
         local kristV2AddressGen = Krist:new {endpoint="krist.ceriat.net"}
@@ -121,7 +121,7 @@ local Account = Class "Account" (
     -- Authenticate
     if argl.auth then
       local kristAuthenticator = Krist:new {endpoint="krist.ceriat.net"}
-      local response = kristAuthenticator:POST {at=routes.misc.login, ft={v=2}, params={privatekey=argl.pkey}}
+      local response = kristAuthenticator:POST {at=routes.misc.login, ft={v="2"}, params={privatekey=argl.key}}
       if not response.authed then return "kristal/Account:new{auth=true}  Could not authorize pkey!" end
     end
 
