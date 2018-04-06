@@ -7,8 +7,8 @@ local log = {
 }
 
 function log:open ()
-  if fs.exists "logs/dumped.log" then fs.move ("logs/dumped.log", "logs/dumped.log.old") end
-  self.file = "logs/dumped.log" 
+  if fs.exists "/var/log/dumped.log" then fs.move ("/var/log/dumped.log", "/var/log/dumped.log.old") end
+  self.file = "/var/log/dumped.log" 
 end
 
 function log:write (str)
