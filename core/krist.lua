@@ -53,7 +53,11 @@ function Krist:GET (t)
   else
     local response = libjson.decode (handle.readAll ())
     handle.close ()
-    return response.ok and response or error "kristal/Krist:GET  Failed request! ".. response["error"]
+    if response.ok then return response else
+      print "kristal/Krist:GET  Failed request!"
+      print ("kristal/Krist:GET  "..response["error"])
+      error ()
+    end
   end
 end
 
@@ -71,7 +75,11 @@ function Krist:POST (t)
   else
     local response = libjson.decode (handle.readAll ())
     handle.close ()
-    return response.ok and response or error "kristal/Krist:POST  Failed request!" .. response["error"]
+    if response.ok then return response else
+      print "kristal/Krist:GET  Failed request!"
+      print ("kristal/Krist:GET  "..response["error"])
+      error ()
+    end
   end
 end
 
@@ -91,7 +99,11 @@ function Krist:PUT (t)
   else
     local response = libjson.decode (handle.readAll())
     handle.close ()
-    return response.ok and response or error "kristal/Krist:PUT  Failed request! ".. response["error"]
+    if response.ok then return response else
+      print "kristal/Krist:GET  Failed request!"
+      print ("kristal/Krist:GET  "..response["error"])
+      error ()
+    end
   end
 end
 
@@ -111,7 +123,11 @@ function Krist:DELETE (t)
   else
     local response = libjson.decode (handle.readAll())
     handle.close ()
-    return response.ok and response or error "kristal/Krist:DELETE  Failed request! ".. response["error"]
+    if response.ok then return response else
+      print "kristal/Krist:GET  Failed request!"
+      print ("kristal/Krist:GET  "..response["error"])
+      error ()
+    end
   end
 end
 
