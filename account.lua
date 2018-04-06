@@ -24,8 +24,8 @@ local Account = Class "Account" (
     }
     -- Typechecking and functionality
     if argl.own then
-      if     not argl.key then              return "kristal/Account:new  Key was not provided!"
-      elseif type (argl.key) ~= string then return "kristal/Account:new  Key must be a string! Current type is "..type (argl.key)
+      if     not argl.key then                return "kristal/Account:new  Key was not provided!"
+      elseif type (argl.key) ~= "string" then return "kristal/Account:new  Key must be a string! Current type is "..type (argl.key)
       end
       if     argl.format then object.key  = Wallet (argl.format) (argl.key, sha256) end
       if     argl.hrnd   then object.hrnd = argl.hrnd                               end
