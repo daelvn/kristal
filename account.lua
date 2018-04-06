@@ -77,7 +77,7 @@ local Account = Class "Account" (
 
       if argl.address:match (admatch)
       or argl.address:match (admatch_alt)
-      then object.address = argl.account
+      then object.address = argl.address
       else return "kristal/Account:new{address="..tostring(argl.address).."}  Could not validate address!" end
     -- If a name is provided, validate it and set
     elseif argl.name    then

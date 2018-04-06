@@ -1,0 +1,3 @@
+Credits to apemanzilla in GitHub/ComputerCraft forums for the program `trace`
+
+http://www.computercraft.info/forums2/index.php?/topic/27844-trace-simple-stack-traces-for-errors/
