@@ -82,7 +82,7 @@ local Account = Class "Account" (
     -- If a name is provided, validate it and set
     elseif argl.name    then
       local kristNameValidator   = Krist:new {endpoint="krist.ceriat.net"}
-      local response             = kristNameValidator:GET {at=routes.name.get, ft={name=argl.name}}
+      local response             = kristNameValidator:GET {at=routes.names.get, ft={name=argl.name}}
       object.name                = response.name
       object.name.pretty         = argl.name
       object.address             = response.name.owner
