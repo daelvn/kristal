@@ -113,7 +113,7 @@ end
 
 -- Make a transaction (HTTP-POST)
 function TransactionAgent:make (From, To, amount, meta)
-  local kristAgent = Krist:new ("krist.ceriat.net")
+  local kristAgent = Krist:new {endpoint="krist.ceriat.net"}
   local response   = kristAgent:POST {at=routes.transactions.make, params={
     privatekey = From.key or error "krist/TransactionAgent:make  You must provide a source account with a key!",
     to         = To.recipient,
@@ -128,7 +128,7 @@ end
 
 -- Connect to the socket
 function TransactionAgent:socketConnect (Address, wrapper, handler)
-  local kristAgent = Krist:new ("krist.ceriat.net")
+  local kristAgent = Krist:new {endpoint="krist.ceriat.net"}
   kristAgent:socketConnect (kristAgent.endpoint,
                             kristAgent.wsEndpoint,
                             kristAgent.httpEndpoint,
