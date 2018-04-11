@@ -21,7 +21,10 @@ local Http = Class ( function (argl)
   local cf = "Http:new"
   typeassert (cf, argl.url) "string"
   -- Object
-  return {url=argl.url}
+  return {
+    url       = argl.url,
+    callbacks = {}
+  }
 end)
 
 -- .format string at, table replace
@@ -60,8 +63,8 @@ function Http:GET (at, onSuccess, onFailure)
   local cf = "Http:GET"
   typeassert (cf, at) "string"
   --
-  http.request (at)
-  os.queueEvent ("kristal:http", onSuccess, onFailure)
+  http.request (self.url..at)
+  self.callbacks[self.url..at] = {onSuccess=onSuccess, onFailure=onFailure}
 end
 
 -- :POST string at, table postdata, function onSuccess, function onFailure
@@ -71,21 +74,18 @@ function Http:POST (at, postdata, onSuccess, onFailure)
   typeassert (cf, at)       "string"
   typeassert (cf, postdata) "table"
   --
-  http.request (at, self.toPOST (postdata))
-  os.queueEvent ("kristal:http", onSuccess, onFailure)
+  http.request (self.url..at, self.toPOST (postdata))
+  self.callbacks[self.url..at] = {onSuccess=onSuccess, onFailure=onFailure}
 end
 
 -- :go
 function Http:go ()
-  local httpUrl, httpHandle, httpDone
-  local onSuccess, onFailure
   while true do
-    local event, a, b = os.pullEvent ()
-    if     event == "http_success" then httpUrl = a; httpHandle = b; httpDone = true
-    elseif event == "http_failure" then httpDone = false
-    elseif event == "kristal:http" then
-      onSuccess = a; onFailure = b
-      if httpDone then onSuccess (httpUrl, httpHandle) else onFailure () end
+    local event, url, handle = os.pullEvent ()
+    if event == "http_success" then
+      if self.callbacks[url] then self.callbacks[url].onSuccess (url, handle) end
+    elseif event == "http_failure" then
+      if self.callbacks[url] then self.callbacks[url].onFailure (url) end
     end
   end
 end
