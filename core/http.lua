@@ -12,20 +12,10 @@ if not http then error "kristal/Http  HTTP API was not found" end
 
 -- Requires
 package.path     = "../?.lua"
-local Class      = require "core.class"
 local typeassert = require "core.utils".typeassert
 
--- Create a Http class
-local Http = Class ( function (argl)
-  -- Typechecking
-  local cf = "Http:new"
-  typeassert (cf, argl.url) "string"
-  -- Object
-  return {
-    url       = argl.url,
-    callbacks = {}
-  }
-end)
+-- Create a Http namespace and callback registry
+local Http, callbacks = {}, {}
 
 -- .format string at, table replace
 function Http.format (at, replace)
@@ -57,35 +47,35 @@ function Http.toPOST (postdata)
   return result
 end
 
--- :GET string at, function onSuccess, function onFailure
-function Http:GET (at, onSuccess, onFailure)
+-- .GET string at, function onSuccess, function onFailure
+function Http.GET (at, onSuccess, onFailure)
   -- Typechecking
-  local cf = "Http:GET"
+  local cf = "Http.GET"
   typeassert (cf, at) "string"
   --
-  http.request (self.url..at)
-  self.callbacks[self.url..at] = {onSuccess=onSuccess, onFailure=onFailure}
+  http.request (at)
+  callbacks[at] = {onSuccess=onSuccess, onFailure=onFailure}
 end
 
--- :POST string at, table postdata, function onSuccess, function onFailure
-function Http:POST (at, postdata, onSuccess, onFailure)
+-- .POST string at, table postdata, function onSuccess, function onFailure
+function Http.POST (at, postdata, onSuccess, onFailure)
   -- Typechecking
-  local cf = "Http:GET"
+  local cf = "Http.POST"
   typeassert (cf, at)       "string"
   typeassert (cf, postdata) "table"
   --
-  http.request (self.url..at, self.toPOST (postdata))
-  self.callbacks[self.url..at] = {onSuccess=onSuccess, onFailure=onFailure}
+  http.request (at, Http.toPOST (postdata))
+  callbacks[at] = {onSuccess=onSuccess, onFailure=onFailure}
 end
 
--- :go
-function Http:go ()
+-- .go
+function Http.go ()
   while true do
     local event, url, handle = os.pullEvent ()
     if event == "http_success" then
-      if self.callbacks[url] then self.callbacks[url].onSuccess (url, handle) end
+      if callbacks[url] then callbacks[url].onSuccess (url, handle) end
     elseif event == "http_failure" then
-      if self.callbacks[url] then self.callbacks[url].onFailure (url) end
+      if callbacks[url] then callbacks[url].onFailure (url) end
     end
   end
 end
