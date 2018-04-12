@@ -13,4 +13,11 @@ function Utils.typeassert (f,v)
   end
 end
 
+-- Make a thread from a file
+function Utils.toThread (f)
+  return function (ld)
+    return assert(loadfile (f), "kristal/Utils.toThread  At "..tostring(f)..": Could not load thread.")
+  end
+end
+
 return Utils

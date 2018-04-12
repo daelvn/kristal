@@ -1,5 +1,5 @@
 package.path = "../?.lua"
-local Http = "core.lua"
+local Http   = require "core.lua"
 
 -- Callbacks
 local function onSuccess (url, handle)
